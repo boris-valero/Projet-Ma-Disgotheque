@@ -1,14 +1,12 @@
-// A standalone program (as opposed to a library) is always in package main.
 package main
 
-//import the packages you’ll need to support the code you’ve just written.
+// Importation de packages externes nécessaires pour le fonctionnement de l'application.
 import (
-	"net/http"
-
+	"net/http" // Package permettant de manipuler des requêtes et réponses HTTP.
 	"github.com/gin-gonic/gin"
 )
 
-// album represents data about a record album. Struct tags such as json:"artist" specify what a field’s name should be when the struct’s contents are serialized into JSON. Without them, the JSON would use the struct’s capitalized field names – a style not as common in JSON.
+// Définition d'une structure `album` car en Go, une structure est un type de données composite qui permet de regrouper des variables sous un même nom
 type album struct {
 	ID     string  `json:"id"`
 	Title  string  `json:"title"`
@@ -17,60 +15,61 @@ type album struct {
 }
 
 func main() {
+// Création d'un nouveau routeur Gin avec les paramètres par défaut.
 	router := gin.Default()
-	// Initialize a Gin router using Default.
+// Associe la route GET "/albums" à la fonction `getAlbums` pour récupérer la liste des albums.
 	router.GET("/albums", getAlbums)
-	// Use the GET function to associate the GET HTTP method and /albums path with a handler function.
+// Associe la route POST "/albums" à la fonction `postAlbums` pour ajouter un nouvel album.
 	router.POST("/albums", postAlbums)
-	// Use the POST function to associate the POST HTTP method and /albums path with a handler function.
+// Associe la route GET "/albums/:id" à la fonction `getAlbumByID` pour récupérer un album spécifique par son ID.
 	router.GET("/albums/:id", getAlbumByID)
-	// Associate the /albums/:id path with the getAlbumByID function. In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
+// Démarre le serveur HTTP sur le port 8080 et écoute les requêtes entrantes.
 	router.Run("localhost:8080")
-	// Use the Run function to attach the router to an http.Server and start the server.
 }
 
-// albums slice to seed record album data. This slice of album structs containing data you’ll use to start.
+// Déclaration d'une variable globale `albums` qui est une slice de `album`. Cette slice contient une liste prédéfinie d'albums musicaux avec leurs détails.
 var albums = []album{
+// Chaque élément de la slice est une instance de la structure `album`, initialisée avec des valeurs spécifiques.
 	{ID: "1", Title: "Thriller", Artist: "Michael Jackson", Year: 1982},
 	{ID: "2", Title: "Songs in the Key of Life", Artist: "Stevie Wonder", Year: 1976},
 	{ID: "3", Title: "A Love Supreme", Artist: "John Coltrane", Year: 1965},
 	{ID: "4", Title: "What's Going On?", Artist: "Marvin Gaye", Year: 1971},
 }
 
-// This getAlbums function creates JSON from the slice of album structs, writing the JSON into the response..
+// La fonction getAlbums crée un JSON depuis la slice de la variable globale `albums`, écrivant le JSON dans la réponse.
 func getAlbums(c *gin.Context) {
-	// getAlbums function takes a gin.Context parameter. Note that you could have given this function any name – neither Gin nor Go require a particular function name format. gin.Context is the most important part of Gin. It carries request details, validates and serializes JSON, and more. (Despite the similar name, this is different from Go’s built-in context package.)
+// Utilise la méthode IndentedJSON de l'objet context `c` pour envoyer une réponse. Le premier paramètre, `http.StatusOK`, indique que la requête a réussi et que le serveur renvoie un code de statut HTTP 200, qui signifie "OK". Le deuxième paramètre est la donnée à envoyer en réponse, ici la liste des albums. La méthode IndentedJSON assure que la réponse JSON est bien formatée avec des indentations, rendant le contenu plus lisible pour les humains.
 	c.IndentedJSON(http.StatusOK, albums)
-	// The function’s first argument is the HTTP status code you want to send to the client. Here, you’re passing the StatusOK constant from the net/http package to indicate 200 OK. Note that you can replace Context.IndentedJSON with a call to Context.JSON to send more compact JSON. In practice, the indented form is much easier to work with when debugging and the size difference is usually small.
 }
 
-// postAlbums adds an album from JSON received in the request body.
+// Définition de la fonction `postAlbums` pour gérer les requêtes POST sur "/albums"
 func postAlbums(c *gin.Context) {
+// Déclare une nouvelle variable `newAlbum` de type `album`
 	var newAlbum album
-
-	// Call BindJSON to bind the received JSON to newAlbum.
-	// Use Context.BindJSON to bind the request body to newAlbum && Append the album struct initialized from the JSON to the albums slice.
+// Appelle BindJSON pour tenter de lier le JSON reçu dans la requête à `newAlbum`. Si une erreur survient, termine la fonction
 	if err := c.BindJSON(&newAlbum); err != nil {
 		return
 	}
-
-	// Add the new album to the slice. Add a 201 status code to the response, along with JSON representing the album you added.
+// Ajoute `newAlbum` à la liste des albums
 	albums = append(albums, newAlbum)
+// Envoie le nouvel album en JSON avec une indentation, avec le code de statut HTTP 201 Créé
 	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
-// getAlbumByID locates the album whose ID value matches the id
-// parameter sent by the client, then returns that album as a response.
+// Définition de la fonction `getAlbumByID` pour gérer les requêtes GET sur "/albums/:id"
 func getAlbumByID(c *gin.Context) {
-	//Use Context.Param to retrieve the id path parameter from the URL. When you map this handler to a path, you’ll include a placeholder for the parameter in the path.
+// Récupère l'ID de l'album depuis l'URL
 	id := c.Param("id")
-	// Loop over the list of albums, looking for an album whose ID value matches the parameter.
+// Parcourt la liste des albums au sein d'une boucle
 	for _, a := range albums {
+// Si l'ID de l'album courant correspond à l'ID recherché
 		if a.ID == id {
+// Envoie l'album en JSON avec une indentation, avec le code de statut HTTP 200
 			c.IndentedJSON(http.StatusOK, a)
+// Termine la fonction
 			return
 		}
 	}
-	//Return an HTTP 404 error with http.StatusNotFound if the album isn’t found.
+// Si aucun album correspondant n'a été trouvé, envoie un message d'erreur en JSON avec le code de statut HTTP 404 Non trouvé
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
