@@ -35,8 +35,8 @@ func main() {
 // Déclaration d'une variable globale `albums` qui est une slice de `album`. Cette slice contient une liste prédéfinie d'albums musicaux avec leurs détails.
 var albums = []album{
 	// Chaque élément de la slice est une instance de la structure `album`, initialisée avec des valeurs spécifiques.
-	{ID: "1", Title: "95200", Artist: "Ministère AMER", Year: 1994, CoverUrl: "https://m.media-amazon.com/images/I/71Eteje8mHL._UF1000,1000_QL80_.jpg"},
-	{ID: "2", Title: "Qu’est-ce qui fait marcher les sages", Artist: "Sages Poètes de la Rue", Year: 1995, CoverUrl: "https://m.media-amazon.com/images/I/71p993DYgLL._UF1000,1000_QL80_.jpg"},
+	{ID: "1", Title: "95200", Artist: "Ministère AMER", Year: 1994},
+	{ID: "2", Title: "Qu’est-ce qui fait marcher les sages", Artist: "Sages Poètes de la Rue", Year: 1995},
 	{ID: "3", Title: "Befa surprend ses frères", Artist: "Fabe", Year: 1995},
 	{ID: "4", Title: "Conçu pour durer", Artist: "La Cliqua", Year: 1995},
 	{ID: "5", Title: "La Haine : Musiques inspirées du film", Artist: "Various Artists", Year: 1995},
